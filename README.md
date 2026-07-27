@@ -24,11 +24,11 @@ Accidental Action Prevention: Destructive or reversing actions (unliking an item
 Direct Manipulation: Swiping left/right mirrors real-world physical gestures (like sorting physical cards), providing an intuitive workflow for common content actions without cluttering the UI with extra buttons.
 
 3. Challenges & Resolutions
-Challenge 1 — Missing Files in File Tree: Initially, after running flutter create, the project structure did not appear cleanly in Visual Studio Code’s Explorer sidebar.
+Challenge 1  Missing Files in File Tree: Initially, after running flutter create, the project structure did not appear cleanly in Visual Studio Code’s Explorer sidebar.
 
 Resolution: I resolved this by ensuring the terminal command finished executing before opening the newly created root folder (gesture_controlled_interface) directly through File > Open Folder.
 
-Challenge 2 — Widget Test Mismatch: Updating the root widget from the boilerplate MyApp to GestureApp caused the auto-generated test/widget_test.dart file to throw a compilation error during build checks.
+Challenge 2  Widget Test Mismatch: Updating the root widget from the boilerplate MyApp to GestureApp caused the auto-generated test/widget_test.dart file to throw a compilation error during build checks.
 
 Resolution: I updated the test file to reference GestureApp(), ensuring all unit tests aligned with the main application entry point.
 
