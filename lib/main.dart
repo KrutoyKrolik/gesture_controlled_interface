@@ -1,121 +1,248 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const GestureApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class GestureApp extends StatelessWidget {
+  const GestureApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Gesture Interface',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        colorSchemeSeed: Colors.indigo,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const GestureScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class GestureScreen extends StatefulWidget {
+  const GestureScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<GestureScreen> createState() => _GestureScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _GestureScreenState extends State<GestureScreen> {
+  // Step 2 State (Tap & Double Tap)
+  int _tapCount = 0;
+  Color _cardColor = Colors.indigo.shade100;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  // Step 3 Refinement State (Double Tap + Long Hold to Undo)
+  bool _isLiked = false;
+  bool _readyToUndo = false;
+  double _cardScale = 1.0;
+
+  // Step 4 State (Swipe / Drag)
+  double _dragOffset = 0.0;
+  String _swipeStatus = "Swipe the card left or right!";
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(milliseconds: 1200),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Gesture Interface'),
+        centerTitle: true,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            // GESTURE 1: TAP & DOUBLE TAP
+            const Text(
+              '1. Tap & Double Tap Zone',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _tapCount++;
+                  _cardColor = Colors.indigo.shade200;
+                });
+              },
+              onDoubleTap: () {
+                setState(() {
+                  _tapCount += 10;
+                  _cardColor = Colors.amber.shade200;
+                });
+                _showSnackBar('Double Tap Bonus! +10 Points');
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 120,
+                decoration: BoxDecoration(
+                  color: _cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Center(
+                  child: Text(
+                    'Score: $_tapCount\n(Tap once or Double Tap!)',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // GESTURE 2: REFINED LONG PRESS (DOUBLE TAP + LONG PRESS TO UNDO)
+            const Text(
+              '2. Refined Like / Undo Zone',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTapDown: (_) => setState(() => _cardScale = 0.95),
+              onTapUp: (_) => setState(() => _cardScale = 1.0),
+              onTapCancel: () => setState(() => _cardScale = 1.0),
+              onDoubleTap: () {
+                if (_isLiked) {
+                  setState(() => _readyToUndo = true);
+                  _showSnackBar('Double-tapped! Now long-press to confirm Undo');
+                }
+              },
+              onLongPress: () {
+                if (!_isLiked) {
+                  // Standard Long Press to Like
+                  setState(() {
+                    _isLiked = true;
+                    _cardScale = 1.0;
+                  });
+                  _showSnackBar('Item Favorited! ❤️');
+                } else if (_readyToUndo) {
+                  // Refined Combo: Double Tap + Long Press to Undo
+                  setState(() {
+                    _isLiked = false;
+                    _readyToUndo = false;
+                    _cardScale = 1.0;
+                  });
+                  _showSnackBar('Item Unfavorited 💔');
+                } else {
+                  // Alert user if they only long-pressed without double-tapping first
+                  _showSnackBar('Double-tap FIRST, then long-press to undo!');
+                }
+              },
+              child: AnimatedScale(
+                scale: _cardScale,
+                duration: const Duration(milliseconds: 100),
+                child: Container(
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: _isLiked 
+                        ? (_readyToUndo ? Colors.orange.shade100 : Colors.pink.shade100) 
+                        : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: _isLiked 
+                          ? (_readyToUndo ? Colors.orange : Colors.pink) 
+                          : Colors.grey,
+                      width: 2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _isLiked ? Icons.favorite : Icons.favorite_border,
+                        color: _isLiked 
+                            ? (_readyToUndo ? Colors.orange : Colors.pink) 
+                            : Colors.grey.shade700,
+                        size: 32,
+                      ),
+                      const SizedBox(width: 12),
+                      Flexible(
+                        child: Text(
+                          _isLiked
+                              ? (_readyToUndo 
+                                  ? 'Now Hold Down to Confirm Undo!' 
+                                  : 'Liked! (Double-tap + Hold to Undo)')
+                              : 'Press & Hold to Like',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: _isLiked 
+                                ? (_readyToUndo ? Colors.orange.shade900 : Colors.pink.shade900) 
+                                : Colors.grey.shade800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // GESTURE 3: HORIZONTAL SWIPE
+            const Text(
+              '3. Horizontal Swipe Zone',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onHorizontalDragUpdate: (details) {
+                setState(() {
+                  _dragOffset += details.delta.dx;
+                });
+              },
+              onHorizontalDragEnd: (details) {
+                if (_dragOffset > 100) {
+                  setState(() => _swipeStatus = "Swiped Right! 👉 (Archived)");
+                  _showSnackBar("Action: Archived");
+                } else if (_dragOffset < -100) {
+                  setState(() => _swipeStatus = "Swiped Left! 👈 (Deleted)");
+                  _showSnackBar("Action: Deleted");
+                }
+                setState(() => _dragOffset = 0.0);
+              },
+              child: Transform.translate(
+                offset: Offset(_dragOffset, 0),
+                child: Container(
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.teal.shade100,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        _swipeStatus,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal.shade900,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
