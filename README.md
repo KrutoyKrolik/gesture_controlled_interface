@@ -28,10 +28,6 @@ Challenge 1  Missing Files in File Tree: Initially, after running flutter create
 
 Resolution: I resolved this by ensuring the terminal command finished executing before opening the newly created root folder (gesture_controlled_interface) directly through File > Open Folder.
 
-Challenge 2  Widget Test Mismatch: Updating the root widget from the boilerplate MyApp to GestureApp caused the auto-generated test/widget_test.dart file to throw a compilation error during build checks.
-
-Resolution: I updated the test file to reference GestureApp(), ensuring all unit tests aligned with the main application entry point.
-
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
